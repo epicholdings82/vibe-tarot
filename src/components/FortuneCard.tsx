@@ -1,17 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { tarotCards, type TarotCard } from "@/data/tarotCards";
+import { tarotCards, luckyItems, luckyColors, type TarotCard } from "@/data/tarotCards";
 
 type Draw = {
   card: TarotCard;
   reversed: boolean;
+  luckyItem: string;
+  luckyColor: string;
 };
 
 function drawCard(): Draw {
   const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
   const reversed = Math.random() < 0.5;
-  return { card, reversed };
+  const luckyItem = luckyItems[Math.floor(Math.random() * luckyItems.length)];
+  const luckyColor = luckyColors[Math.floor(Math.random() * luckyColors.length)];
+  return { card, reversed, luckyItem, luckyColor };
 }
 
 export default function FortuneCard() {
@@ -61,11 +65,11 @@ export default function FortuneCard() {
           </div>
 
           {/* Back (revealed tarot card) */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-amber-300/40 bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-6 text-center shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto rounded-2xl border-2 border-amber-300/40 bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-5 text-center shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
             {draw && (
               <>
                 <span
-                  className={`text-6xl transition-transform duration-300 ${
+                  className={`text-5xl transition-transform duration-300 ${
                     draw.reversed ? "rotate-180" : ""
                   }`}
                 >
@@ -86,9 +90,13 @@ export default function FortuneCard() {
                 >
                   {draw.reversed ? "역방향" : "정방향"}
                 </span>
-                <p className="mt-1 text-sm leading-relaxed text-white/80">
+                <p className="text-sm leading-relaxed text-white/80">
                   {draw.reversed ? draw.card.reversed : draw.card.upright}
                 </p>
+                <div className="mt-1 flex flex-col items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs text-amber-100">
+                  <span>🍀 행운의 아이템: {draw.luckyItem}</span>
+                  <span>🎨 행운의 색: {draw.luckyColor}</span>
+                </div>
               </>
             )}
           </div>

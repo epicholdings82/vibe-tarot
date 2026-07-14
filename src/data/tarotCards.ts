@@ -6,6 +6,44 @@ export type TarotCard = {
   reversed: string;
 };
 
+export const luckyItems: string[] = [
+  "우산",
+  "손거울",
+  "노란색 볼펜",
+  "동전 지갑",
+  "머그컵",
+  "귀걸이",
+  "향초",
+  "책갈피",
+  "선글라스",
+  "목도리",
+  "만년필",
+  "화분",
+  "손목시계",
+  "열쇠고리",
+  "카메라",
+  "초콜릿",
+  "장갑",
+  "텀블러",
+  "향수",
+  "반지",
+];
+
+export const luckyColors: string[] = [
+  "빨간색",
+  "주황색",
+  "노란색",
+  "초록색",
+  "파란색",
+  "남색",
+  "보라색",
+  "핑크색",
+  "하늘색",
+  "흰색",
+  "검은색",
+  "금색",
+];
+
 export const tarotCards: TarotCard[] = [
   { name: "The Fool", nameKo: "바보", symbol: "🃏", upright: "새로운 시작과 자유로운 도전이 기다리고 있어요. 두려움 없이 첫걸음을 내디뎌 보세요.", reversed: "무모한 선택이 발목을 잡을 수 있어요. 성급한 결정은 잠시 미뤄두세요." },
   { name: "The Magician", nameKo: "마법사", symbol: "🎩", upright: "가진 능력을 최대로 발휘할 때입니다. 원하는 것을 현실로 만들 힘이 있어요.", reversed: "능력을 과신하거나 잔재주를 부리면 신뢰를 잃을 수 있어요." },
