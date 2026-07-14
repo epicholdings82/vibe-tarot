@@ -56,16 +56,18 @@ export default function FortuneCard() {
           }`}
         >
           {/* Front (card back design) */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-amber-300/40 bg-gradient-to-br from-indigo-900 via-purple-900 to-violet-950 p-6 text-center shadow-xl [backface-visibility:hidden]">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-amber-300/60 text-4xl">
-              ✨
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border-4 border-transparent bg-[linear-gradient(#1e1b4b,#1e1b4b),linear-gradient(135deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#4338ca,#8b5cf6)] bg-origin-border p-6 text-center shadow-xl [background-clip:padding-box,border-box] [backface-visibility:hidden]">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-white/60 text-4xl">
+              🌈
             </div>
-            <p className="text-xl font-bold tracking-widest text-amber-200">TAROT</p>
+            <p className="bg-[linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#4338ca,#8b5cf6)] bg-clip-text text-xl font-bold tracking-widest text-transparent">
+              TAROT
+            </p>
             <p className="text-sm text-white/70">카드를 눌러 오늘의 타로를 뽑아보세요</p>
           </div>
 
           {/* Back (revealed tarot card) */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto rounded-2xl border-2 border-amber-300/40 bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-5 text-center shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-y-auto rounded-2xl border-4 border-transparent bg-[linear-gradient(#1e1b4b,#1e1b4b),linear-gradient(135deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#4338ca,#8b5cf6)] bg-origin-border p-5 text-center shadow-xl [background-clip:padding-box,border-box] [backface-visibility:hidden] [transform:rotateY(180deg)]">
             {draw && (
               <>
                 <span
@@ -75,7 +77,7 @@ export default function FortuneCard() {
                 >
                   {draw.card.symbol}
                 </span>
-                <p className="text-lg font-bold text-amber-200">
+                <p className="bg-[linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#4338ca,#8b5cf6)] bg-clip-text text-lg font-bold text-transparent">
                   {draw.card.nameKo}
                 </p>
                 <p className="text-xs uppercase tracking-wide text-white/50">
@@ -93,7 +95,7 @@ export default function FortuneCard() {
                 <p className="text-sm leading-relaxed text-white/80">
                   {draw.reversed ? draw.card.reversed : draw.card.upright}
                 </p>
-                <div className="mt-1 flex flex-col items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs text-amber-100">
+                <div className="mt-1 flex flex-col items-center gap-1 rounded-xl bg-white/10 px-3 py-2 text-xs text-white">
                   <span>🍀 행운의 아이템: {draw.luckyItem}</span>
                   <span>🎨 행운의 색: {draw.luckyColor}</span>
                 </div>
@@ -105,7 +107,7 @@ export default function FortuneCard() {
 
       <button
         onClick={handleClick}
-        className="rounded-full bg-amber-300 px-8 py-3 text-base font-semibold text-zinc-900 shadow-md transition-colors hover:bg-amber-200 active:scale-95"
+        className="rounded-full bg-[linear-gradient(90deg,#ef4444,#f97316,#eab308,#22c55e,#3b82f6,#4338ca,#8b5cf6)] px-8 py-3 text-base font-semibold text-white shadow-md transition-transform hover:scale-105 active:scale-95"
       >
         {flipped ? "다시 뽑기" : "타로 카드 뽑기"}
       </button>
