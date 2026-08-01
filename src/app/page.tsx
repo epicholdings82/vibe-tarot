@@ -4,17 +4,27 @@ import { getSupabase, todayInSeoul } from "@/lib/supabase";
 // 매 요청마다 오늘의 카운트를 다시 읽는다.
 export const dynamic = "force-dynamic";
 
+// 카운트는 장식용이므로, 어떤 이유로 실패하든 페이지 전체를 죽이지 않고
+// null 을 돌려 pill 만 숨긴다. 원인은 서버 로그로 남긴다.
 async function getTodayCount(): Promise<number | null> {
-  const supabase = getSupabase();
-  if (!supabase) return null;
+  try {
+    const supabase = getSupabase();
+    if (!supabase) return null;
 
-  const { count, error } = await supabase
-    .from("fortunes")
-    .select("*", { count: "exact", head: true })
-    .eq("drawn_on", todayInSeoul());
+    const { count, error } = await supabase
+      .from("fortunes")
+      .select("*", { count: "exact", head: true })
+      .eq("drawn_on", todayInSeoul());
 
-  if (error) return null;
-  return count ?? 0;
+    if (error) {
+      console.error("[fortunes] 카운트 조회 실패:", error.message);
+      return null;
+    }
+    return count ?? 0;
+  } catch (e) {
+    console.error("[fortunes] 카운트 조회 중 예외:", e);
+    return null;
+  }
 }
 
 export default async function Home() {
