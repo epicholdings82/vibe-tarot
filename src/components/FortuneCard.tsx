@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { tarotCards, luckyItems, luckyColors, type TarotCard } from "@/data/tarotCards";
-import { saveFortune } from "@/app/actions";
+import { saveFortune, generateAiFortune } from "@/app/actions";
 
 type Draw = {
   card: TarotCard;
@@ -12,6 +12,7 @@ type Draw = {
 };
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
+type AiStatus = "idle" | "loading" | "done" | "error";
 
 function formatContent(draw: Draw): string {
   const orientation = draw.reversed ? "역방향" : "정방향";
@@ -45,6 +46,9 @@ export default function FortuneCard() {
   const [userName, setUserName] = useState("");
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState("");
+  const [aiStatus, setAiStatus] = useState<AiStatus>("idle");
+  const [aiText, setAiText] = useState("");
+  const [aiError, setAiError] = useState("");
 
   const persist = async (next: Draw) => {
     setSaveStatus("saving");
@@ -67,6 +71,32 @@ export default function FortuneCard() {
     }
   };
 
+  const handleAiFortune = async () => {
+    if (!draw || aiStatus === "loading") return;
+    setAiStatus("loading");
+    setAiError("");
+    try {
+      const result = await generateAiFortune({
+        cardName: `${draw.card.nameKo} (${draw.card.name})`,
+        orientation: draw.reversed ? "역방향" : "정방향",
+        meaning: draw.reversed ? draw.card.reversed : draw.card.upright,
+        luckyItem: draw.luckyItem,
+        luckyColor: draw.luckyColor,
+        userName,
+      });
+      if (result.ok) {
+        setAiText(result.text);
+        setAiStatus("done");
+      } else {
+        setAiStatus("error");
+        setAiError(result.error);
+      }
+    } catch {
+      setAiStatus("error");
+      setAiError("AI 운세 생성 중 오류가 발생했습니다.");
+    }
+  };
+
   const handleClick = () => {
     if (isAnimating) return;
 
@@ -74,6 +104,9 @@ export default function FortuneCard() {
       const next = drawCard();
       if (!next) return;
       setDraw(next);
+      setAiStatus("idle");
+      setAiText("");
+      setAiError("");
       setIsAnimating(true);
       setFlipped(true);
       window.setTimeout(() => setIsAnimating(false), 700);
@@ -160,12 +193,33 @@ export default function FortuneCard() {
         </div>
       </div>
 
-      <button
-        onClick={handleClick}
-        className="rounded-full bg-amber-300 px-8 py-3 text-base font-semibold text-zinc-900 shadow-md transition-colors hover:bg-amber-200 active:scale-95"
-      >
-        {flipped ? "다시 뽑기" : "타로 카드 뽑기"}
-      </button>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <button
+          onClick={handleClick}
+          className="rounded-full bg-amber-300 px-8 py-3 text-base font-semibold text-zinc-900 shadow-md transition-colors hover:bg-amber-200 active:scale-95"
+        >
+          {flipped ? "다시 뽑기" : "타로 카드 뽑기"}
+        </button>
+
+        {flipped && draw && (
+          <button
+            onClick={handleAiFortune}
+            disabled={aiStatus === "loading"}
+            className="rounded-full border border-amber-300/60 bg-white/10 px-8 py-3 text-base font-semibold text-amber-200 shadow-md transition-colors hover:bg-white/20 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {aiStatus === "loading" ? "AI가 운세를 쓰는 중…" : "✨ AI 운세 새로 만들기"}
+          </button>
+        )}
+      </div>
+
+      {aiStatus === "done" && (
+        <div className="max-w-md rounded-xl border border-amber-300/30 bg-white/10 px-4 py-3 text-sm leading-relaxed text-amber-50">
+          {aiText}
+        </div>
+      )}
+      {aiStatus === "error" && (
+        <p className="max-w-md text-center text-xs text-rose-300">AI 운세 생성 실패: {aiError}</p>
+      )}
 
       <p className="min-h-5 text-xs text-white/50" aria-live="polite">
         {saveStatus === "saving" && "저장 중…"}

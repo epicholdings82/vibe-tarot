@@ -2,6 +2,7 @@
 
 import { refresh } from "next/cache";
 import { getSupabase } from "@/lib/supabase";
+import { generateFortuneText } from "@/lib/openrouter";
 
 export async function saveFortune(input: {
   cardName: string;
@@ -30,4 +31,18 @@ export async function saveFortune(input: {
   refresh();
 
   return { ok: true };
+}
+
+export async function generateAiFortune(input: {
+  cardName: string;
+  orientation: "정방향" | "역방향";
+  meaning: string;
+  luckyItem: string;
+  luckyColor: string;
+  userName?: string;
+}) {
+  return generateFortuneText({
+    ...input,
+    userName: input.userName?.trim().slice(0, 40) || undefined,
+  });
 }
