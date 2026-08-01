@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 // null 을 돌려 pill 만 숨긴다. 원인은 서버 로그로 남긴다.
 async function getTodayCount(): Promise<number | null> {
   try {
-    const supabase = getSupabase();
+    const { client: supabase } = getSupabase();
     if (!supabase) return null;
 
     const { count, error } = await supabase

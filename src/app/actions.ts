@@ -8,10 +8,10 @@ export async function saveFortune(input: {
   userName: string;
   content: string;
 }) {
-  const supabase = getSupabase();
+  const { client: supabase, reason } = getSupabase();
 
   if (!supabase) {
-    return { ok: false, error: "Supabase 환경변수가 설정되지 않았습니다." };
+    return { ok: false, error: reason };
   }
 
   const userName = input.userName.trim();
