@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { tarotCards, luckyItems, luckyColors, type TarotCard } from "@/data/tarotCards";
+import { saveFortune } from "@/app/actions";
 
 type Draw = {
   card: TarotCard;
@@ -10,11 +11,30 @@ type Draw = {
   luckyColor: string;
 };
 
-function drawCard(): Draw {
-  const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+type SaveStatus = "idle" | "saving" | "saved" | "error";
+
+function formatContent(draw: Draw): string {
+  const orientation = draw.reversed ? "역방향" : "정방향";
+  const meaning = draw.reversed ? draw.card.reversed : draw.card.upright;
+  return [
+    `${draw.card.nameKo}(${orientation}) — ${meaning}`,
+    `행운의 아이템: ${draw.luckyItem}`,
+    `행운의 색: ${draw.luckyColor}`,
+  ].join("\n");
+}
+
+function pickRandom<T>(items: T[] | undefined | null, fallback: T): T {
+  if (!items || items.length === 0) return fallback;
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function drawCard(): Draw | null {
+  const card = pickRandom<TarotCard | null>(tarotCards, null);
+  if (!card) return null;
+
   const reversed = Math.random() < 0.5;
-  const luckyItem = luckyItems[Math.floor(Math.random() * luckyItems.length)];
-  const luckyColor = luckyColors[Math.floor(Math.random() * luckyColors.length)];
+  const luckyItem = pickRandom(luckyItems, "행운의 기운");
+  const luckyColor = pickRandom(luckyColors, "무지개색");
   return { card, reversed, luckyItem, luckyColor };
 }
 
@@ -22,15 +42,42 @@ export default function FortuneCard() {
   const [flipped, setFlipped] = useState(false);
   const [draw, setDraw] = useState<Draw | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [saveError, setSaveError] = useState("");
+
+  const persist = async (next: Draw) => {
+    setSaveStatus("saving");
+    setSaveError("");
+    try {
+      const result = await saveFortune({
+        cardName: `${next.card.nameKo} / ${next.card.name}`,
+        userName,
+        content: formatContent(next),
+      });
+      if (result.ok) {
+        setSaveStatus("saved");
+      } else {
+        setSaveStatus("error");
+        setSaveError(result.error ?? "저장에 실패했습니다.");
+      }
+    } catch {
+      setSaveStatus("error");
+      setSaveError("저장 중 오류가 발생했습니다.");
+    }
+  };
 
   const handleClick = () => {
     if (isAnimating) return;
 
     if (!flipped) {
-      setDraw(drawCard());
+      const next = drawCard();
+      if (!next) return;
+      setDraw(next);
       setIsAnimating(true);
       setFlipped(true);
       window.setTimeout(() => setIsAnimating(false), 700);
+      void persist(next);
     } else {
       setIsAnimating(true);
       setFlipped(false);
@@ -40,6 +87,16 @@ export default function FortuneCard() {
 
   return (
     <div className="flex flex-col items-center gap-8">
+      <input
+        type="text"
+        value={userName}
+        onChange={(e) => setUserName(e.target.value)}
+        maxLength={40}
+        placeholder="이름 (선택)"
+        aria-label="이름"
+        className="w-56 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-center text-sm text-white placeholder:text-white/40 focus:border-amber-300/60 focus:outline-none"
+      />
+
       <div className="[perspective:1200px]">
         <div
           onClick={handleClick}
@@ -109,6 +166,12 @@ export default function FortuneCard() {
       >
         {flipped ? "다시 뽑기" : "타로 카드 뽑기"}
       </button>
+
+      <p className="min-h-5 text-xs text-white/50" aria-live="polite">
+        {saveStatus === "saving" && "저장 중…"}
+        {saveStatus === "saved" && "운세를 저장했어요"}
+        {saveStatus === "error" && `저장 실패: ${saveError}`}
+      </p>
     </div>
   );
 }
