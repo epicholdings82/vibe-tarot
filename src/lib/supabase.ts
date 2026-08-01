@@ -24,6 +24,16 @@ export function getSupabase(): SupabaseInit {
     return { client: null, reason };
   }
 
+  // 키는 HTTP 헤더로 전송되므로 ASCII 여야 한다. 아니면 요청 시점에
+  // "Cannot convert argument to a ByteString" 같은 알아보기 힘든 에러가 난다.
+  // 문서의 축약 표기(sb_secret_…)를 그대로 붙여넣는 실수가 여기서 걸린다.
+  if (!/^[\x20-\x7e]+$/.test(secretKey)) {
+    const reason =
+      "SUPABASE_SECRET_KEY 에 ASCII 가 아닌 문자가 있습니다. 값이 '…' 로 줄여 쓴 자리표시자가 아닌 실제 키 전체인지 확인하세요.";
+    console.error("[supabase]", reason);
+    return { client: null, reason };
+  }
+
   try {
     return {
       client: createClient(url, secretKey, { auth: { persistSession: false } }),
